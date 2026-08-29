@@ -34,38 +34,22 @@ kubernetes:
               to: /usr/bin/k3d
               mode: "0755"
               run_as: root
-            - run: |
-                command=if [ ! -x /usr/bin/kubectl ]; then
-                  ARCH_TRIPLET="${ARCH:-$(dpkg --print-architecture 2>/dev/null || echo amd64)}"
-                  curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH_TRIPLET}/kubectl" \
-                    -o /usr/bin/kubectl
-                  chmod 0755 /usr/bin/kubectl
-                fi
+            - run: download the kubectl binary (the declarative download verb — content-addressed cache, atomic rename; ARCH is the auto-exported TARGETARCH amd64/arm64, which is the k8s release asset naming)
+              download: "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl"
+              extract: none
+              to: /usr/bin/kubectl
+              mode: "0755"
+              unless_exists: /usr/bin/kubectl
               run_as: root
-              command: |
-                if [ ! -x /usr/bin/kubectl ]; then
-                  ARCH_TRIPLET="${ARCH:-$(dpkg --print-architecture 2>/dev/null || echo amd64)}"
-                  curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH_TRIPLET}/kubectl" \
-                    -o /usr/bin/kubectl
-                  chmod 0755 /usr/bin/kubectl
-                fi
-            - run: |
-                command=if [ ! -x /usr/bin/helm ]; then
-                  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get-helm-3.sh
-                  chmod 0755 /tmp/get-helm-3.sh
-                  /tmp/get-helm-3.sh
-                  rm -f /tmp/get-helm-3.sh
-                  [ -x /usr/local/bin/helm ] && ln -sf /usr/local/bin/helm /usr/bin/helm || true
-                fi
+            - run: download and run the helm installer script (the declarative download verb, extract sh mode — content-addressed cache, atomic rename)
+              download: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+              extract: sh
+              unless_exists: /usr/bin/helm
               run_as: root
+            - run: symlink helm onto PATH
               command: |
-                if [ ! -x /usr/bin/helm ]; then
-                  curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 -o /tmp/get-helm-3.sh
-                  chmod 0755 /tmp/get-helm-3.sh
-                  /tmp/get-helm-3.sh
-                  rm -f /tmp/get-helm-3.sh
-                  [ -x /usr/local/bin/helm ] && ln -sf /usr/local/bin/helm /usr/bin/helm || true
-                fi
+                [ -x /usr/local/bin/helm ] && ln -sf /usr/local/bin/helm /usr/bin/helm || true
+              run_as: root
             - check: the kubectl API client binary is installed at /usr/bin/kubectl
               file:
                 file: /usr/bin/kubectl
