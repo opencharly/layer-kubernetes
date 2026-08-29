@@ -44,7 +44,7 @@ kubernetes:
             - run: download and run the helm installer script (the declarative download verb, extract sh mode — content-addressed cache, atomic rename)
               download: "https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
               extract: sh
-              unless_exists: /usr/local/bin/helm
+              unless_exists: /usr/bin/helm
               run_as: root
             - run: symlink helm onto PATH
               command: |
