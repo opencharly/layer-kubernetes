@@ -1,5 +1,7 @@
+version: 2026.232.0520
 deploy:
     candy:
+        version: 2026.144.1443
         description: |
             Kubernetes client toolchain — kubectl, helm, and k3d — at stable /usr/bin paths
             The kubernetes candy installs the three core Kubernetes client tools
